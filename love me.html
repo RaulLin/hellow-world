@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<style>
+#wrap{
+	width: 300px;
+	height: 150px;
+	padding: 5px;
+	border: 3px solid #ccc;
+	background: #fff;
+	position: relative;
+	margin: 20px auto;
+}
+strong{
+	position: absolute;
+	left: 280px;
+	top: 0;
+	padding: 2px 6px;
+}
+strong:hover{
+	background: red;
+	cursor: pointer;
+}
+span{
+	width: 30px;
+	height: 10px;
+	padding: 5px;
+	border: 1px solid #000;
+	display: inline-block;
+	font: 12px/10px "宋体";
+	text-align: center;
+	position: absolute;
+}
+span:hover{
+	cursor: pointer;
+}
+#yes{
+	left: 95px;
+	top: 120px;
+}
+#no{
+	left: 150px;
+	top: 120px;
+}
+</style>
+<body>
+<div id="wrap">
+	<p>你是不是喜欢我?</p>
+	<strong>关闭</strong>
+	<span id="yes">是的</span>
+	<span id="no">不是</span>
+</div>	
+</body>
+<script type="text/javascript">
+	window.onload=function(){
+		var wrap=document.getElementById("wrap");
+		var close=document.getElementsByTagName("strong")[0];
+		var yes=document.getElementsByTagName("span")[0];
+		var no=document.getElementsByTagName("span")[1];
+		var p=document.getElementsByTagName("p")[0];
+		close.onclick=function(){
+			alert("就算关闭窗口也不能关闭我喜欢你的心门");
+		}
+		love();
+		function love(){
+			var spans=document.querySelectorAll("span");
+			yes.onmouseover=function(){
+				Yes();
+			}
+			yes.onclick=function(){
+				if (this.innerHTML=="是的") {
+					p.style.marginTop=30+"px";
+					p.innerHTML="为了遇上你，花光了我余生所有的运气"
+					wrap.style.background="pink";
+					mTween(no,{top:120,left:150},100,"backOut")
+					alert("么么哒");
+				};
+			}
+		}
+		ww();
+		function ww(){	
+			no.onmouseover=function(){
+				Yes();
+				No();
+				mTween(no,{top:60},100,"backOut",function(){
+					no.onmouseover=function(){
+						mTween(no,{left:240},100,"backOut",function(){
+							no.onmouseover=function(){
+								mTween(no,{left:120},100,"backOut",function(){
+									no.onmouseover=function(){
+										mTween(no,{top:120,left:150},100,"backOut",function(){ww();
+										})
+									}
+								})
+							}			
+						});
+					}
+				});	
+			}
+		}
+	function No(){	
+		no.onmouseout=function(){
+			clearTimeout(timer);
+			var timer;
+			setTimeout(
+				function clear(){
+					yes.style.borderColor="#000";
+					mTween(yes,{width:30,height:10},100,"backOut")
+					yes.style.lineHeight=10+"px";
+					yes.style.fontSize=12+"px";
+					yes.style.background="";
+				},500)
+		}
+	}	
+	function Yes(){
+		yes.focus();
+		//alert("你确定吗？");
+		yes.style.borderColor="#3f88ee";
+		mTween(yes,{width:40,height:15},100,"backOut")
+		yes.style.lineHeight=15+"px";
+		yes.style.fontSize=15+"px";
+		yes.style.background="yellow";
+	}	
+	function getId(name){
+		return document.getElementById(name);
+	}
+	function getTag(parent,tag){
+		return parent.getElementsByTagName(tag);
+	}
+	function getClass(parent,name){
+		return parent.getElementsByClassName(name);
+	}
+	var Tween = {
+	
+		backOut: function(t, b, c, d, s){
+			if (typeof s == 'undefined') {
+				s = 2.70158;  //回缩的距离
+			}
+			return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+		}, 
+	
+	};
+	/* 当css的参数个数小于3，获取否则 设置 */
+	function css(el,attr,val) {
+		if(arguments.length < 3) {  //如果小于3 说明只有el,attr两个
+			var val  = 0;
+			if(el.currentStyle) {   //IE下识别 解决兼容性
+				val = el.currentStyle[attr];
+			} else {
+				val = getComputedStyle(el)[attr]; //否则chrome下识别
+			}
+			if(attr == "opacity") {		 //如果获取的是opacity 避免小数计算 放大100倍
+				val*=100;
+			}
+			return parseFloat(val);		 // 返回val值
+		}
+		if(attr == "opacity") {	 //如果获取的是opacity
+			el.style.opacity = val/100; //否则chrome下识别
+			el.style.filter = "alpha(opacity = "+val+")";  //IE下识别 解决兼容性
+		} else {
+			el.style[attr] = val + "px";  //否则其他属性值加单位
+		}
+	}
+	function mTween(el,target,time,type,callBack) {
+		clearInterval(el.timer);
+		var t = 0;
+		var b = {}; 
+		var c = {}; 	
+		var d = time/20; 
+		for(var s in target) {
+			b[s] = css(el,s);  
+			c[s] = target[s] - b[s];
+		}
+		el.timer = setInterval(function(){
+			t++;
+			if(t>d) {
+				clearInterval(el.timer);
+				/*if(callBack) {
+					callBack()
+				}*/
+				callBack&&callBack(); //回调函数 动画执行完了以后，要执行的内容 ，类型 function	
+			} else {
+				for(var s in target) {
+					var val = Tween[type](t,b[s],c[s],d);
+					css(el,s,val);
+				}
+			}
+		},20);
+	}
+			
+}
+</script>
+</html>
